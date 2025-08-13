@@ -12,5 +12,6 @@
     "slack:test": "bash scripts/slack_test.sh",
     "dc:up": "bash scripts/dc_up.sh",
     "doctor": "yarn -v && node -v"
-  }
+  },
+  "packageManager": "yarn@4.9.2"
 }
