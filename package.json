@@ -1,0 +1,17 @@
+{
+  "name": "gtek-sovereign-cidex",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "install": "echo ''",
+    "bootstrap": "bash scripts/bootstrap.sh",
+    "dev": "bash scripts/dev.sh",
+    "audit": "bash scripts/audit.sh",
+    "canvas:zip": "bash scripts/canvas_zip.sh",
+    "slack:test": "bash scripts/slack_test.sh",
+    "dc:up": "bash scripts/dc_up.sh"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
