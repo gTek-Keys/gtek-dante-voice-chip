@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+  
+  * {
+    @apply border-gray-200;
+  }
+}
+
+@layer components {
+  .terminal-window {
+    @apply bg-terminal-bg text-terminal-text font-mono text-sm rounded-lg shadow-lg border border-gray-700;
+  }
+  
+  .dashboard-card {
+    @apply bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow;
+  }
+  
+  .voice-indicator {
+    @apply w-4 h-4 rounded-full bg-red-500 animate-pulse-slow;
+  }
+  
+  .voice-indicator.listening {
+    @apply bg-green-500 animate-bounce-gentle;
+  }
+  
+  .voice-indicator.speaking {
+    @apply bg-blue-500 animate-pulse;
+  }
+}

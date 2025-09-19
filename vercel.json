@@ -1,0 +1,17 @@
+{
+  "version": 3,
+  "functions": {
+    "source": "backend",
+    "installCommand": "npm install"
+  },
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/.next",
+  "devCommand": "cd frontend && npm run dev",
+  "framework": "nextjs",
+  "public": false,
+  "env": {
+    "ENCRYPTION_KEY": "@encryption_key",
+    "OPENAI_API_KEY": "@openai_api_key",
+    "VOICE_MODEL": "gpt-4-turbo-preview"
+  }
+}

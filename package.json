@@ -1,17 +1,46 @@
 {
-  "name": "gtek-sovereign-cidex",
+  "name": "dante-voice-chip",
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "Terminal monitoring system with voice interaction and daily organization",
   "scripts": {
     "install": "echo ''",
     "bootstrap": "bash ./scripts/bootstrap_env.sh",
-    "dev": "npx http-server ./docs -p 8080 -c-1",
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm start",
+    "agent:install": "cd agent && ./install.sh",
+    "agent:start": "cd agent && ./start.sh",
+    "agent:stop": "cd agent && ./stop.sh",
+    "voice:start": "cd voice && npm start",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && npm test",
     "audit": "yarn npm audit || true",
     "canvas:zip": "mkdir -p dist && (cd docs && zip -qr ../dist/docs_$(date +%Y%m%d).zip .)",
     "slack:test": "bash scripts/slack_test.sh",
     "dc:up": "bash scripts/dc_up.sh",
     "doctor": "yarn -v && node -v"
   },
+  "keywords": [
+    "terminal",
+    "monitoring",
+    "voice",
+    "ai",
+    "productivity",
+    "logging"
+  ],
+  "author": "gTek-Keys",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gTek-Keys/gtek-dante-voice-chip.git"
+  },
+  "workspaces": [
+    "frontend",
+    "backend",
+    "voice"
+  ],
   "packageManager": "yarn@4.9.2"
 }
