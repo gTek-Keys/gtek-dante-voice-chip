@@ -1,143 +1,151 @@
 import express from 'express'
-import { exec } from 'child_process'
-import { promisify } from 'util'
+import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
 
-const execAsync = promisify(exec)
 const router = express.Router()
 
-// Get vault directory path
-const VAULT_DIR = path.join(os.homedir(), '.dante-voice-chip', 'vault')
-const VAULT_SCRIPT = path.join(process.cwd(), '..', 'agent', 'vault_manager.py')
+// Get logs directory path
+const DANTE_LOGS_DIR = path.join(os.homedir(), '.dante-voice-chip', 'logs')
 
-// Helper function to run Python vault manager
-async function runVaultScript(method, ...args) {
+// Helper function to read Dante logs
+async function getDanteLogs(limit = 50) {
   try {
-    const command = `python3 -c "
-import sys
-sys.path.append('${path.dirname(VAULT_SCRIPT)}')
-from vault_manager import VaultManager
-import json
-import os
-
-vault_dir = '${VAULT_DIR}'
-key_path = os.path.join(os.path.dirname(vault_dir), 'encryption.key')
-vault = VaultManager(vault_dir, key_path)
-
-result = vault.${method}(${args.map(arg => `'${arg}'`).join(', ')})
-print(json.dumps(result, default=str))
-"`
+    // Check if logs directory exists
+    await fs.access(DANTE_LOGS_DIR)
     
-    const { stdout } = await execAsync(command)
-    return JSON.parse(stdout.trim())
+    // Read directory contents
+    const files = await fs.readdir(DANTE_LOGS_DIR)
+    const logFiles = files.filter(f => f.endsWith('.log') || f.endsWith('.json'))
+    
+    // Sort by modification time (newest first)
+    const fileStats = await Promise.all(
+      logFiles.map(async (file) => {
+        const fullPath = path.join(DANTE_LOGS_DIR, file)
+        const stats = await fs.stat(fullPath)
+        return { file, fullPath, mtime: stats.mtime }
+      })
+    )
+    
+    fileStats.sort((a, b) => b.mtime - a.mtime)
+    
+    // Read the most recent logs
+    const recentLogs = []
+    for (const { fullPath } of fileStats.slice(0, 5)) {
+      try {
+        const content = await fs.readFile(fullPath, 'utf8')
+        const lines = content.split('\n').filter(line => line.trim())
+        
+        // Try to parse as JSON, fallback to plain text
+        for (const line of lines.slice(-limit/5)) {
+          try {
+            const log = JSON.parse(line)
+            recentLogs.push({
+              ...log,
+              timestamp: log.timestamp || new Date().toISOString(),
+              source: 'dante-logs'
+            })
+          } catch {
+            // Plain text log entry
+            recentLogs.push({
+              message: line,
+              timestamp: new Date().toISOString(),
+              source: 'dante-logs',
+              type: 'text'
+            })
+          }
+        }
+      } catch (err) {
+        console.error(`Error reading ${fullPath}:`, err.message)
+      }
+    }
+    
+    return recentLogs.slice(-limit)
   } catch (error) {
-    console.error('Vault script error:', error)
+    console.error('Error accessing Dante logs:', error.message)
     return []
   }
+}
+
+// Fallback function for mock logs
+function getMockLogs(limit = 50) {
+  const mockLogs = []
+  const commands = ['ls -la', 'cd ~/Desktop', 'git status', 'npm install', 'dante help']
+  
+  for (let i = 0; i < Math.min(limit, 10); i++) {
+    mockLogs.push({
+      id: i + 1,
+      command: commands[Math.floor(Math.random() * commands.length)],
+      timestamp: new Date(Date.now() - i * 60000).toISOString(),
+      exitCode: Math.random() > 0.1 ? 0 : 1,
+      directory: '/Users/test',
+      duration: Math.floor(Math.random() * 1000),
+      source: 'mock-data'
+    })
+  }
+  
+  return mockLogs
 }
 
 // GET /api/logs/recent - Get recent terminal commands
 router.get('/recent', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50
-    const logs = await runVaultScript('get_recent_commands', limit)
     
-    res.json(logs || [])
+    // Try to get real Dante logs first
+    let logs = await getDanteLogs(limit)
+    
+    // If no real logs, provide mock data
+    if (logs.length === 0) {
+      logs = getMockLogs(limit)
+    }
+    
+    res.json({
+      logs,
+      total: logs.length,
+      source: logs.length > 0 ? logs[0].source : 'none'
+    })
   } catch (error) {
     console.error('Error fetching recent logs:', error)
     res.status(500).json({ error: 'Failed to fetch recent logs' })
   }
 })
 
-// GET /api/logs/search - Search through command history
-router.get('/search', async (req, res) => {
+// GET /api/logs - Get all logs
+router.get('/', async (req, res) => {
   try {
-    const { q: query, start, end } = req.query
+    const limit = parseInt(req.query.limit) || 100
+    const logs = await getDanteLogs(limit)
     
-    if (!query) {
-      return res.status(400).json({ error: 'Query parameter required' })
-    }
-    
-    let dateRange = null
-    if (start && end) {
-      dateRange = [start, end]
-    }
-    
-    const results = await runVaultScript('search_commands', query, dateRange)
-    
-    res.json(results || [])
+    res.json({
+      logs: logs.length > 0 ? logs : getMockLogs(limit),
+      total: logs.length,
+      timestamp: new Date().toISOString()
+    })
   } catch (error) {
-    console.error('Error searching logs:', error)
-    res.status(500).json({ error: 'Failed to search logs' })
+    console.error('Error fetching logs:', error)
+    res.status(500).json({ error: 'Failed to fetch logs' })
   }
 })
 
-// GET /api/logs/export - Export logs for a date range
-router.get('/export', async (req, res) => {
+// GET /api/logs/health - Health check for logs service
+router.get('/health', async (req, res) => {
   try {
-    const { start, end, format = 'json' } = req.query
+    const canAccessLogs = await fs.access(DANTE_LOGS_DIR).then(() => true).catch(() => false)
     
-    if (!start || !end) {
-      return res.status(400).json({ error: 'Start and end date parameters required' })
-    }
-    
-    // Create temporary export file
-    const exportFile = path.join('/tmp', `logs_export_${Date.now()}.${format}`)
-    
-    const count = await runVaultScript('export_data', start, end, exportFile)
-    
-    if (count > 0) {
-      res.download(exportFile, `dante-logs-${start}-to-${end}.${format}`, (err) => {
-        if (!err) {
-          // Clean up temp file
-          setTimeout(() => {
-            try {
-              require('fs').unlinkSync(exportFile)
-            } catch (e) {}
-          }, 5000)
-        }
-      })
-    } else {
-      res.status(404).json({ error: 'No logs found for the specified date range' })
-    }
+    res.json({
+      status: 'ok',
+      logsDirectory: DANTE_LOGS_DIR,
+      canAccessLogs,
+      timestamp: new Date().toISOString()
+    })
   } catch (error) {
-    console.error('Error exporting logs:', error)
-    res.status(500).json({ error: 'Failed to export logs' })
+    res.status(500).json({ 
+      status: 'error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    })
   }
-})
-
-// GET /api/logs/live - WebSocket endpoint for live log streaming
-router.get('/live', (req, res) => {
-  // Set up Server-Sent Events for live log streaming
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Cache-Control'
-  })
-  
-  // Send initial connection message
-  res.write('data: {"type": "connected", "message": "Live log stream connected"}\n\n')
-  
-  // Mock live data for now
-  const interval = setInterval(() => {
-    const mockLog = {
-      type: 'command',
-      timestamp: new Date().toISOString(),
-      command: 'ls -la',
-      exitCode: 0,
-      directory: '/Users/test'
-    }
-    
-    res.write(`data: ${JSON.stringify(mockLog)}\n\n`)
-  }, 5000)
-  
-  // Clean up on client disconnect
-  req.on('close', () => {
-    clearInterval(interval)
-  })
 })
 
 export { router as logsRouter }

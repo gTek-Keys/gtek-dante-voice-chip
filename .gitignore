@@ -1,1 +1,44 @@
 node_modules
+
+# Environment variables with secrets
+.env
+.env.local
+.env.production
+.env.development
+frontend/.env.local
+frontend/.env.production
+frontend/.env.development
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dante Voice Chip specific
+.dante-voice-chip/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Docker
+.dockerignore

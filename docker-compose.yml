@@ -1,0 +1,120 @@
+# 🎼 Dante Voice Chip Orchestra - Docker Compose Configuration
+# Orchestrating containers with Afrocentric excellence
+
+version: '3.8'
+
+services:
+  # 🌐 Frontend Service
+  dante-frontend:
+    build: .
+    container_name: dante-orchestra-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      # Source code hot reloading
+      - .:/app
+      - /app/node_modules
+      - /app/frontend/node_modules
+      # Mount host logs for real agent data
+      - ${HOME}/.dante-voice-chip:/app/host-logs:ro
+      - ${HOME}/Library/Logs:/app/mac-logs:ro
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-auto-generated}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    networks:
+      - dante-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/logs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 🔧 Backend API Service
+  dante-backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dante-orchestra-backend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      # Mount host logs for real agent data
+      - ${HOME}/.dante-voice-chip:/app/host-logs:ro
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - FRONTEND_URL=http://localhost:3000
+    networks:
+      - dante-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # 🤖 Agent Sync Service (Future)
+  dante-agent:
+    image: python:3.11-alpine
+    container_name: dante-orchestra-agent
+    volumes:
+      - ./agent:/app/agent
+      - ${HOME}/.dante-voice-chip:/app/data
+    working_dir: /app
+    command: ["python3", "agent/monitor.py"]
+    environment:
+      - PYTHONPATH=/app
+    networks:
+      - dante-network
+    restart: unless-stopped
+    depends_on:
+      - dante-frontend
+
+  # 📊 Database Viewer (Optional)
+  dante-db-viewer:
+    image: adminer
+    container_name: dante-orchestra-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=sqlite
+    networks:
+      - dante-network
+    profiles:
+      - tools
+
+networks:
+  dante-network:
+    driver: bridge
+    name: dante-orchestra
+
+volumes:
+  dante-data:
+    name: dante-orchestra-data
+
+# 🎯 Development Commands:
+#
+# Start the orchestra:
+#   docker-compose up
+#
+# Start with database tools:
+#   docker-compose --profile tools up
+#
+# Rebuild and start:
+#   docker-compose up --build
+#
+# View logs:
+#   docker-compose logs -f dante-frontend
+#
+# Stop everything:
+#   docker-compose down
+#
+# Full reset:
+#   docker-compose down -v && docker-compose up --build

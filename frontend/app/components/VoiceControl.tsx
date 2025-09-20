@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useVoice } from '../providers/VoiceProvider'
 
 interface VoiceControlProps {
