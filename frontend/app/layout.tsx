@@ -15,7 +15,12 @@ export const metadata = {
   title: 'Dante Voice Chip - Terminal Control Tower',
   description: 'AI-powered terminal monitoring with Afrocentric excellence - Monitor your terminal activity with voice interaction and AI-powered insights',
   keywords: ['terminal', 'monitoring', 'ai', 'voice', 'dashboard', 'afrocentric'],
+}
+
+export const viewport = {
   themeColor: '#FFD700',
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({
