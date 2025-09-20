@@ -83,6 +83,47 @@ export async function GET(request: NextRequest) {
       }
     }
     
+    // Fallback to mock data if no logs found (e.g., on Vercel)
+    if (summary.length === 0) {
+      console.log('🎭 No logs found, serving mock data for demo purposes')
+      summary = [
+        {
+          file: "dante-session.log",
+          lines: 45,
+          size: "2.3 KB",
+          lastModified: new Date().toISOString(),
+          preview: [
+            "🎼 Dante Voice Chip Orchestra - Session Started",
+            "INFO: Terminal monitoring initialized with Afrocentric excellence", 
+            "Recorded command: npm run build",
+            "Recorded command: docker compose up",
+            "Recorded command: git status",
+            "INFO: Ubuntu philosophy applied - 'I am because we are'",
+            "Recorded command: dante help",
+            "INFO: Session completed successfully"
+          ],
+          commands: 12,
+          errors: 0
+        },
+        {
+          file: "agent-monitor.log", 
+          lines: 23,
+          size: "1.1 KB",
+          lastModified: new Date(Date.now() - 300000).toISOString(), // 5 minutes ago
+          preview: [
+            "🤖 Agent monitoring started",
+            "INFO: Watching terminal for commands",
+            "INFO: Encryption key loaded",
+            "INFO: Voice chip calibrated",
+            "INFO: Ready for Ubuntu excellence"
+          ],
+          commands: 5,
+          errors: 0
+        }
+      ]
+      agentStatus = 'demo-mode'
+    }
+
     // Check agent status
     try {
       const agentLogPath = path.join(process.env.HOME || '', '.dante-voice-chip', 'logs', 'monitor.log')
