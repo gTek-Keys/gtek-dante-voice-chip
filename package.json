@@ -8,13 +8,13 @@
     "🎼": "echo '🎼 Dante Voice Chip Orchestra - Full Stack Automation'",
     "🚀": "npm run build:all && npm run deploy",
     "build": "./scripts/build.sh",
-    "deploy": "./scripts/deploy.sh", 
+    "deploy": "./scripts/deploy.sh",
     "dev": "./scripts/dev.sh",
     "clean": "./scripts/clean.sh",
     "setup": "./scripts/setup.sh",
     "install:all": "npm install && npm run install:frontend && npm run install:backend && npm run install:voice",
     "install:frontend": "cd frontend && npm install",
-    "install:backend": "cd backend && npm install", 
+    "install:backend": "cd backend && npm install",
     "install:voice": "cd voice && npm install",
     "build:all": "npm run build:frontend && npm run build:backend && npm run build:voice",
     "build:frontend": "cd frontend && npm run build",
@@ -64,5 +64,8 @@
     "backend",
     "voice"
   ],
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "yarn@4.9.2",
+  "dependencies": {
+    "@vercel/analytics": "^1.5.0"
+  }
 }
