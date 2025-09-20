@@ -1,6 +1,7 @@
 import React from 'react'
 import './globals.css'
 import { Inter } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 import { VoiceProvider } from './providers/VoiceProvider'
 import { Sidebar } from './components/Sidebar'
 import { Header } from './components/Header'
@@ -57,6 +58,7 @@ export default function RootLayout({
           {/* Cultural Footer Accent */}
           <div className="fixed bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-african-emerald via-african-gold to-african-crimson opacity-50"></div>
         </div>
+        <Analytics />
       </body>
     </html>
   )
