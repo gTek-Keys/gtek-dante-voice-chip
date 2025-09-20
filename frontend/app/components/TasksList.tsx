@@ -36,7 +36,7 @@ export function TasksList({ tasks, onTaskUpdate }: TasksListProps) {
 
   return (
     <div className="dashboard-card h-96">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Today's Tasks</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Today&apos;s Tasks</h3>
       <div className="space-y-3 overflow-y-auto h-80">
         {tasks.length === 0 ? (
           <div className="text-gray-500 text-center py-8">No tasks for today</div>

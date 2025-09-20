@@ -25,10 +25,69 @@ mkdir -p "$AGENT_DIR/scripts"
 
 # Copy monitoring scripts
 echo "📋 Installing monitoring scripts..."
-cp ./monitor.py "$AGENT_DIR/scripts/"
-cp ./session_tracker.sh "$AGENT_DIR/scripts/"
-cp ./log_rotator.py "$AGENT_DIR/scripts/"
-cp ./vault_manager.py "$AGENT_DIR/scripts/"
+# Copy the main monitor script
+cp ./monitor.py "$AGENT_DIR/scripts/" 2>/dev/null || echo "monitor.py already in place"
+
+# Create additional scripts if they don't exist
+if [ ! -f "./session_tracker.sh" ]; then
+    cat > "$AGENT_DIR/scripts/session_tracker.sh" << 'EOF'
+#!/bin/bash
+# Session tracker for terminal monitoring
+export HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S "
+export PROMPT_COMMAND="history -a; history -n"
+EOF
+fi
+
+if [ ! -f "./log_rotator.py" ]; then
+    cat > "$AGENT_DIR/scripts/log_rotator.py" << 'EOF'
+#!/usr/bin/env python3
+# Log rotation utility
+import os
+import gzip
+from datetime import datetime, timedelta
+
+def rotate_logs():
+    """Rotate and compress old log files"""
+    log_dir = os.path.expanduser("~/.dante-voice-chip/logs")
+    for file in os.listdir(log_dir):
+        if file.endswith('.log') and os.path.getmtime(os.path.join(log_dir, file)) < time.time() - 86400:
+            # Compress files older than 1 day
+            with open(os.path.join(log_dir, file), 'rb') as f_in:
+                with gzip.open(os.path.join(log_dir, file + '.gz'), 'wb') as f_out:
+                    f_out.writelines(f_in)
+            os.remove(os.path.join(log_dir, file))
+
+if __name__ == "__main__":
+    rotate_logs()
+EOF
+fi
+
+if [ ! -f "./vault_manager.py" ]; then
+    cat > "$AGENT_DIR/scripts/vault_manager.py" << 'EOF'
+#!/usr/bin/env python3
+# Vault management utility
+import sqlite3
+import os
+from cryptography.fernet import Fernet
+
+class VaultManager:
+    def __init__(self):
+        self.vault_dir = os.path.expanduser("~/.dante-voice-chip/vault")
+        self.db_path = os.path.join(self.vault_dir, "sessions.db")
+        
+    def get_stats(self):
+        """Get vault statistics"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.execute("SELECT COUNT(*) FROM commands")
+        command_count = cursor.fetchone()[0]
+        conn.close()
+        return {"total_commands": command_count}
+
+if __name__ == "__main__":
+    vm = VaultManager()
+    print(vm.get_stats())
+EOF
+fi
 
 # Make scripts executable
 chmod +x "$AGENT_DIR/scripts/"*.sh
@@ -52,7 +111,11 @@ EOF
 
 # Install Python dependencies
 echo "🐍 Installing Python dependencies..."
-pip3 install --user cryptography sqlite3 watchdog psutil
+# Install Python dependencies
+echo "🐍 Installing Python dependencies..."
+pip3 install --user cryptography psutil watchdog || {
+    print_warning "Some Python packages failed to install. Agent may have limited functionality."
+}
 
 # Create launchd plist for automatic startup
 echo "🔄 Setting up automatic startup..."

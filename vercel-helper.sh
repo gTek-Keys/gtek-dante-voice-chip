@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Vercel Deployment Helper for Dante Voice Chip
+
+echo "🚀 Vercel Deployment Assistant"
+echo "============================"
+echo ""
+echo "You're currently being prompted by Vercel CLI."
+echo "Here are the recommended answers:"
+echo ""
+echo "1. ✅ Set up and deploy? → YES"
+echo "2. 🏢 Which scope? → gTek Industries (already selected)"
+echo "3. 🔗 Link to existing project? → NO (type 'n')"
+echo "4. 📛 Project name? → dante-voice-chip"
+echo "5. 📁 Directory with code? → ./ (current directory)"
+echo ""
+echo "After deployment:"
+echo "• Your dashboard will be live at: https://dante-voice-chip-xxx.vercel.app"
+echo "• Set environment variables in Vercel dashboard:"
+echo "  - ENCRYPTION_KEY (generate with: openssl rand -base64 32)"
+echo "  - OPENAI_API_KEY (your OpenAI API key)"
+echo ""
+echo "🎯 Recommended project name: dante-voice-chip"
+echo ""
+echo "Continue with your Vercel deployment..."

@@ -1,17 +1,33 @@
 {
-  "version": 3,
+  "version": 2,
+  "name": "dante-voice-chip",
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/next",
+      "config": {
+        "distDir": ".next"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    }
+  ],
   "functions": {
-    "source": "backend",
-    "installCommand": "npm install"
+    "frontend/app/api/*/route.ts": {
+      "runtime": "nodejs18.x"
+    }
   },
-  "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/.next",
-  "devCommand": "cd frontend && npm run dev",
-  "framework": "nextjs",
-  "public": false,
   "env": {
-    "ENCRYPTION_KEY": "@encryption_key",
-    "OPENAI_API_KEY": "@openai_api_key",
-    "VOICE_MODEL": "gpt-4-turbo-preview"
-  }
+    "NODE_ENV": "production"
+  },
+  "regions": ["iad1"],
+  "framework": "nextjs"
 }
