@@ -1,0 +1,2 @@
+<button class="p-3 rounded-full transition-colors bg-gray-200 hover:bg-gray-300 text-gray-700">🎤</button>
+<div class="flex items-center space-x-2"><div class="voice-indicator "></div><span class="text-sm text-gray-600">Ready</span></div>

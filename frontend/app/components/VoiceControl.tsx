@@ -1,45 +1,39 @@
 'use client'
 
-import { useVoice } from '../providers/VoiceProvider'
+import { UbuntuVoiceDashboard } from './UbuntuVoiceDashboard'
 
 interface VoiceControlProps {
   onCommand: (command: string) => void
   isActive: boolean
   onActiveChange: (active: boolean) => void
+  className?: string
 }
 
-export function VoiceControl({ onCommand, isActive, onActiveChange }: VoiceControlProps) {
-  const { isListening, isSpeaking, startListening, stopListening, speak } = useVoice()
-
-  const toggleListening = () => {
-    if (isListening) {
-      stopListening()
-    } else {
-      startListening()
-    }
-    onActiveChange(!isListening)
+export function VoiceControl({ 
+  onCommand, 
+  isActive, 
+  onActiveChange,
+  className = ''
+}: VoiceControlProps) {
+  
+  // 🌍 Enhanced Voice Control with Ubuntu Voice Dashboard
+  const handleVoiceCommand = (command: string) => {
+    console.log('🎤 Ubuntu voice command:', command)
+    onCommand(command)
   }
 
   return (
-    <div className="flex items-center space-x-4">
-      <button
-        onClick={toggleListening}
-        className={`p-3 rounded-full transition-colors ${
-          isListening 
-            ? 'bg-green-500 hover:bg-green-600 text-white' 
-            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-        }`}
-      >
-        🎤
-      </button>
+    <div className={`ubuntu-voice-control ${className}`}>
+      {/* 🎤 Advanced Ubuntu Voice Interface */}
+      <UbuntuVoiceDashboard 
+        className="w-full"
+      />
       
-      <div className="flex items-center space-x-2">
-        <div className={`voice-indicator ${
-          isListening ? 'listening' : isSpeaking ? 'speaking' : ''
-        }`} />
-        <span className="text-sm text-gray-600">
-          {isListening ? 'Listening...' : isSpeaking ? 'Speaking...' : 'Ready'}
-        </span>
+      {/* 🌍 Ubuntu Philosophy Footer */}
+      <div className="mt-6 text-center">
+        <p className="text-interface-mist/50 text-xs italic">
+          🌍 Ubuntu Voice Technology: "I am because we are"
+        </p>
       </div>
     </div>
   )

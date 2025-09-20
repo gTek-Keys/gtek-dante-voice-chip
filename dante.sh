@@ -1,7 +1,51 @@
 #!/bin/bash
 # 🎼 Dante Voice Chip Advanced REPL Dispatcher
-# Ubuntu-powered interactive development environment
+# Ubuntu-powered interactive development environment with smart path detection
 set -e
+
+# 🔍 Smart project directory detection
+detect_project_root() {
+    local current_dir="$(pwd)"
+    
+    # Check current directory first
+    if [ -f "./launch.sh" ]; then
+        echo "$(pwd)"
+        return 0
+    fi
+    
+    # Check parent directory
+    if [ -f "../launch.sh" ]; then
+        echo "$(cd .. && pwd)"
+        return 0
+    fi
+    
+    # Check grandparent directory
+    if [ -f "../../launch.sh" ]; then
+        echo "$(cd ../.. && pwd)"
+        return 0
+    fi
+    
+    # Look for the project in common locations
+    if [ -f "/Users/bfh/gtek-dante-voice-chip/launch.sh" ]; then
+        echo "/Users/bfh/gtek-dante-voice-chip"
+        return 0
+    fi
+    
+    echo "❌ Could not find Dante Voice Chip project directory" >&2
+    echo "   Please navigate to the project directory first" >&2
+    echo "   Current directory: $current_dir" >&2
+    echo "💡 Try: cd /Users/bfh/gtek-dante-voice-chip" >&2
+    return 1
+}
+
+# 🌍 Auto-detect project root
+PROJECT_ROOT="$(detect_project_root)"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+# Change to project directory
+cd "$PROJECT_ROOT"
 
 # 🎨 Enhanced Ubuntu color palette
 RED='\033[0;31m'

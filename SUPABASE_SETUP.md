@@ -174,3 +174,22 @@ CREATE TABLE notes (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 ```
+
+---
+
+## Vercel Deployment Webhook Configuration
+
+To enable seamless deployment notifications from Vercel, configure the following webhook in your Vercel project settings:
+
+- **URL**: `https://gtek.world/api/webhooks/vercel`
+- **Secret**: `qRuMa9LuG4gCIvGMHzqctOCN`
+- **Events**: All deployment events (created, ready, error, domain changes)
+
+This webhook will ensure that your application is automatically rebuilt and redeployed on Vercel with every relevant code change, keeping your production environment in sync with your latest developments.
+
+---
+
+const insights = await aiGateway.getSystemInsights({const voice = await aiGateway.generateVoiceResponse(
+    cpu: 75,    "Command completed successfully", 
+    memory: 60,    { voice: 'ubuntu-sage' }
+    disk: 40);});

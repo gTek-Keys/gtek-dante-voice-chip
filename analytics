@@ -1,0 +1,7 @@
+import { track } from '@vercel/analytics'
+
+// Track voice commands
+track('voice_command', { 
+  command: 'Hello Dante',
+  ubuntu_spirit: true 
+})

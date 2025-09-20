@@ -13,6 +13,7 @@ import { statsRouter } from './api/stats/index.js'
 import { logsRouter } from './api/logs/index.js'
 import { tasksRouter } from './api/tasks/index.js'
 import { aiRouter } from './api/ai/index.js'
+import mcpHandler from './api/mcp/index.js'
 
 dotenv.config()
 
@@ -59,6 +60,18 @@ app.use('/api/stats', statsRouter)
 app.use('/api/logs', logsRouter)
 app.use('/api/tasks', tasksRouter)
 app.use('/api/ai', aiRouter)
+
+// MCP Connector endpoint
+app.post('/api/mcp', mcpHandler)
+app.get('/api/mcp', (req, res) => {
+  res.json({
+    service: "MCP Connector - Ubuntu Voice Bridge",
+    description: "Model Context Protocol endpoint with African cultural wisdom",
+    methods: ["POST", "GET"],
+    ubuntu_philosophy: "I am because we are - technology serves humanity",
+    cultural_message: "🎤 Backend MCP ready for Ubuntu voice commands"
+  })
+})
 
 // Error handling middleware
 app.use((err, req, res, next) => {
